@@ -49,13 +49,13 @@ collecting template definitions.
 import sys, os.path, time
 import re                       # TODO use regex when it will be standard
 import argparse, random
-from itertools import izip,  izip_longest
+from itertools import zip_longest
 import logging
 import urllib
 import bz2
 import codecs
-from htmlentitydefs import name2codepoint
-import Queue, threading, multiprocessing
+from html.entities import name2codepoint
+import queue, threading, multiprocessing
 
 #===========================================================================
 
@@ -303,7 +303,7 @@ class Template(list):
     def __str__(self):
         return ''.join([unicode(x) for x in self])
 
-class TemplateText(unicode):
+class TemplateText(str):
     """Fixed text of template"""
 
     def subst(self, params, extractor, depth):
@@ -874,7 +874,7 @@ def findBalanced(text, openDelim, closeDelim):
     """
     openPat = '|'.join([re.escape(x) for x in openDelim])
     # patter for delimiters expected after each opening delimiter
-    afterPat = { o:re.compile(openPat+'|'+c, re.DOTALL) for o,c in izip(openDelim, closeDelim)}
+    afterPat = { o:re.compile(openPat+'|'+c, re.DOTALL) for o,c in zip(openDelim, closeDelim)}
     stack = []
     start = 0
     cur = 0
@@ -2009,7 +2009,7 @@ def compact(text):
         elif line[0] in '*#;:':
             if Extractor.toHTML:
                 i = 0
-                for c,n in izip_longest(listLevel, line):
+                for c,n in zip_longest(listLevel, line):
                     if n not in '*#;:':
                         if c:
                             page.append(listClose[c])
