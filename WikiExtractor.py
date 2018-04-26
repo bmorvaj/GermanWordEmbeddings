@@ -2251,7 +2251,7 @@ def process_dump(input_file, template_file, outdir, file_size, file_compress, th
     # initialize jobs queue
     #threads = multiprocessing.cpu_count()
     logging.info("Using %d CPUs.", threads)
-    queue = Queue.Queue(maxsize=2 * threads)
+    queue = queue.Queue(maxsize=2 * threads)
     lock = threading.Lock()  # for protecting shared state.
 
     nextFile = NextFile(lock, outdir)
