@@ -55,7 +55,8 @@ import urllib
 import bz2
 import codecs
 from html.entities import name2codepoint
-import queue, threading, multiprocessing
+import queue as q
+import threading, multiprocessing
 
 #===========================================================================
 
@@ -1989,7 +1990,7 @@ def compact(text):
                 title += '.'
             headers[lev] = title
             # drop previous headers
-            for i in headers.keys():
+            for i in list(headers):#headers.keys():
                 if i > lev:
                     del headers[i]
             emptySection = True
@@ -2045,7 +2046,8 @@ def compact(text):
         elif len(headers):
             if not Extractor.keepSections:
                 items = headers.items()
-                items.sort()
+                #items.sort()
+                items = sorted(items) 
                 for (i, v) in items:
                     page.append(v)
             headers.clear()
@@ -2094,7 +2096,7 @@ class NextFile(object):
     def _dirname(self):
         char1 = self.dir_index % 26
         char2 = self.dir_index / 26 % 26
-        return os.path.join(self.path_name, '%c%c' % (ord('A') + char2, ord('A') + char1))
+        return os.path.join(self.path_name, str(ord('A') + char2), str(ord('A') + char1))#'%c%c' % (ord('A') + char2, ord('A') + char1))
 
     def _filepath(self):
         return '%s/wiki_%02d' % (self._dirname(), self.file_index)
@@ -2112,7 +2114,8 @@ class OutputSplitter(object):
         :para compress: whether to write data with bzip compression.
         """
         self.nextFile = nextFile
-        self.compress = compress
+        #self.compress = compress
+        self.compress = False
         self.max_file_size = max_file_size
         self.file = self.open(self.nextFile.next())
 
@@ -2122,7 +2125,7 @@ class OutputSplitter(object):
             self.file = self.open(self.nextFile.next())
 
     def write(self, data):
-        self.file.write(data)
+        self.file.write(str(data))
 
     def close(self):
         self.file.close()
@@ -2251,14 +2254,14 @@ def process_dump(input_file, template_file, outdir, file_size, file_compress, th
     # initialize jobs queue
     #threads = multiprocessing.cpu_count()
     logging.info("Using %d CPUs.", threads)
-    queue = queue.Queue(maxsize=2 * threads)
+    queue = q.Queue(maxsize=2 * threads)
     lock = threading.Lock()  # for protecting shared state.
 
     nextFile = NextFile(lock, outdir)
 
     # start worker threads
     workers = []
-    for _ in xrange(max(1, threads - 1)): # keep one for master
+    for _ in range(max(1, threads - 1)): # keep one for master
         output_splitter = OutputSplitter(nextFile, file_size, file_compress)
         extractor = ExtractorThread(queue, output_splitter)
         workers.append(extractor)
