@@ -97,8 +97,16 @@ with open(args.raw, 'r') as infile:
     # start pre processing with multiple threads
     pool = mp.Pool(args.threads)
     values = pool.imap(process_line, infile, chunksize=args.batch_size)
+    #print(type(infile))
+    #print(infile)
+    #values =  process_line(infile)
     with open(args.target, 'w') as outfile:
+        #print(type(values))
+        #print(values)
+
         for i, s in enumerate(values):
+            #print(i)
+            #print(s)
             if i and i % 25000 == 0:
                 logging.info('processed {} sentences'.format(i))
                 outfile.flush()
